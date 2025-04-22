@@ -14,21 +14,19 @@ public class OcrService {
 
     public String extractText(MultipartFile file) {
         ITesseract tesseract = new Tesseract();
-        tesseract.setDatapath(new File("tessdata").getAbsolutePath()); // funguje lokálne aj pri deployi
-        tesseract.setLanguage("slk"); // alebo "eng" podľa OCR jazykového modelu
-
+        tesseract.setDatapath(new File("tessdata").getAbsolutePath());
+        tesseract.setLanguage("slk+eng");
 
         try {
-            File tempFile = File.createTempFile("upload", file.getOriginalFilename());
+            File tempFile = File.createTempFile("ocr_", file.getOriginalFilename());
             file.transferTo(tempFile);
 
             String result = tesseract.doOCR(tempFile);
             tempFile.delete();
-
             return result;
         } catch (IOException | TesseractException e) {
             e.printStackTrace();
-            return "❌ OCR chyba: " + e.getMessage();
+            return "❌ OCR zlyhalo: " + e.getMessage();
         }
     }
 }

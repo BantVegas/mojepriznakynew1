@@ -18,7 +18,7 @@ public class OcrController {
     @PostMapping("/upload")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body("Žiadny súbor nebol nahraný.");
+            return ResponseEntity.badRequest().body(Map.of("text", "❌ Súbor nebol priložený."));
         }
 
         String text = ocrService.extractText(file);
