@@ -25,27 +25,29 @@ public class FreeformController {
     public ResponseEntity<?> handleFreeform(@RequestBody FreeformRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
-            return ResponseEntity.status(401).body("Neautorizovaný prístup");
+            return ResponseEntity.status(401).body(Map.of("result", "❌ Neautorizovaný prístup"));
         }
 
         String email = auth.getName();
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
-            return ResponseEntity.status(404).body("Používateľ neexistuje");
+            return ResponseEntity.status(404).body(Map.of("result", "❌ Používateľ neexistuje"));
         }
 
-        // Ak je používateľ PACIENT, skontroluj limit
         if (user.getSubscriptionTier() == SubscriptionTier.PACIENT && user.getAiUsageCount() >= 2) {
-            return ResponseEntity.status(403).body("Limit 2 analýz bol vyčerpaný. Pre upgrade prejdite na PREMIUM.");
+            return ResponseEntity.status(403).body(Map.of("result", "❌ Limit 2 analýz bol vyčerpaný"));
         }
 
-        // Volanie OpenAI
-        String aiAnswer = openAiService.askChatGPT(request.getPrompt());
+        try {
+            String aiAnswer = openAiService.askChatGPT(request.getPrompt());
 
-        // Aktualizuj použitie
-        user.setAiUsageCount(user.getAiUsageCount() + 1);
-        userRepository.save(user);
+            user.setAiUsageCount(user.getAiUsageCount() + 1);
+            userRepository.save(user);
 
-        return ResponseEntity.ok(Map.of("result", aiAnswer));
+            return ResponseEntity.ok(Map.of("result", aiAnswer));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("result", "❌ Chyba pri AI spracovaní"));
+        }
     }
 }
