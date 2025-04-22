@@ -4,7 +4,7 @@ import com.bantvegas.mojepriznakynew.dto.FreeformRequest;
 import com.bantvegas.mojepriznakynew.enums.SubscriptionTier;
 import com.bantvegas.mojepriznakynew.model.User;
 import com.bantvegas.mojepriznakynew.repository.UserRepository;
-import com.bantvegas.mojepriznakynew.service.OpenAiService;
+import com.bantvegas.mojepriznakynew.service.OpenAiService; // ⬅️ správny service!
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -19,7 +19,7 @@ import java.util.Map;
 public class FreeformController {
 
     private final UserRepository userRepository;
-    private final OpenAiService openAiService;
+    private final OpenAiService openAiService; // ⬅️ správny typ!
 
     @PostMapping("/freeform")
     public ResponseEntity<?> handleFreeform(@RequestBody FreeformRequest request) {
