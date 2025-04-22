@@ -18,10 +18,19 @@ public class OcrController {
     @PostMapping("/upload")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("text", "❌ Súbor nebol priložený."));
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("text", "❌ Súbor nebol priložený"));
         }
 
-        String text = ocrService.extractText(file);
-        return ResponseEntity.ok(Map.of("text", text));
+        try {
+            String text = ocrService.extractText(file);
+            return ResponseEntity.ok(Map.of("text", text));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity
+                    .status(500)
+                    .body(Map.of("text", "❌ Chyba OCR: " + e.getMessage()));
+        }
     }
 }
