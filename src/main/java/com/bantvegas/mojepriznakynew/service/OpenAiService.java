@@ -26,7 +26,7 @@ public class OpenAiService {
         );
 
         Map<String, Object> requestBody = Map.of(
-                "model", "gpt-3.5-turbo",
+                "model", "gpt-4o",
                 "messages", List.of(message),
                 "max_tokens", 500
         );
