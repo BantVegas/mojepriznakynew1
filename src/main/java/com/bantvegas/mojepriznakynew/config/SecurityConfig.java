@@ -38,8 +38,14 @@ public class SecurityConfig {
                                 "/h2-console/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/freeform", "/api/ocr/upload", "/stripe/create-checkout-session")
+
+                        .requestMatchers(HttpMethod.POST, "/api/freeform")
                         .hasAnyAuthority("ROLE_PACIENT", "ROLE_PACIENT_PREMIUM")
+
+                        // ✅ Povolený OCR upload pre všetkých (na testovanie)
+                        .requestMatchers(HttpMethod.POST, "/api/ocr/upload").permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/stripe/create-checkout-session").authenticated()
                         .requestMatchers("/api/me").authenticated()
                         .anyRequest().denyAll()
                 )
@@ -51,9 +57,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("https://mojepriznaky-frontend5.vercel.app"));
+        config.setAllowedOriginPatterns(List.of(
+                "https://*.vercel.app",
+                "https://mojepriznaky-frontend5.vercel.app",
+                "http://localhost:*"
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -62,12 +72,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public AuthenticationManager authManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
     @Bean
-    public AuthenticationManager authManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
