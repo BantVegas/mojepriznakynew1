@@ -39,14 +39,24 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
+                        // 🧠 AI analýza
                         .requestMatchers(HttpMethod.POST, "/api/freeform")
                         .hasAnyAuthority("ROLE_PACIENT", "ROLE_PACIENT_PREMIUM")
 
-                        // ✅ Povolený OCR upload pre všetkých (na testovanie)
+                        // 📷 Diagnóza z obrázka
+                        .requestMatchers(HttpMethod.POST, "/api/diagnose")
+                        .hasAnyAuthority("ROLE_PACIENT", "ROLE_PACIENT_PREMIUM")
+
+                        // 📤 Upload obrázka pre OCR
                         .requestMatchers(HttpMethod.POST, "/api/ocr/upload").permitAll()
 
+                        // 💳 Stripe
                         .requestMatchers(HttpMethod.POST, "/stripe/create-checkout-session").authenticated()
+
+                        // 🧍‍♂️ Info o používateľovi
                         .requestMatchers("/api/me").authenticated()
+
+                        // 🔒 Všetko ostatné zakázané
                         .anyRequest().denyAll()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
