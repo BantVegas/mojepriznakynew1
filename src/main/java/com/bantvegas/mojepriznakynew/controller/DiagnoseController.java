@@ -76,28 +76,4 @@ public class DiagnoseController {
         List<DiagnosisRecord> history = diagnosisRecordRepository.findByUserOrderByTimestampDesc(user);
         return ResponseEntity.ok(history);
     }
-
-    @PostMapping("/diagnose/send")
-    public ResponseEntity<?> sendDiagnosisToDoctor(@RequestParam Long id) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
-            return ResponseEntity.status(401).body(Map.of("result", "❌ Neautorizovaný prístup"));
-        }
-
-        String email = auth.getName();
-        User user = userRepository.findByEmail(email).orElse(null);
-        if (user == null) {
-            return ResponseEntity.status(404).body(Map.of("result", "❌ Používateľ neexistuje"));
-        }
-
-        DiagnosisRecord record = diagnosisRecordRepository.findById(id).orElse(null);
-        if (record == null || !record.getUser().getId().equals(user.getId())) {
-            return ResponseEntity.status(403).body(Map.of("result", "❌ Diagnóza neexistuje alebo nepatrí vám"));
-        }
-
-        // Simuluj odoslanie doktorovi
-        System.out.println("📩 Odosielam doktorovi: " + record.getResult());
-
-        return ResponseEntity.ok(Map.of("result", "✅ Diagnóza bola odoslaná doktorovi."));
-    }
 }
