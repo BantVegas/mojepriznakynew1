@@ -47,6 +47,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/diagnose")
                         .hasAnyAuthority("ROLE_PACIENT", "ROLE_PACIENT_PREMIUM")
 
+                        // ✅ História diagnóz
+                        .requestMatchers(HttpMethod.GET, "/api/diagnose/history")
+                        .hasAnyAuthority("ROLE_PACIENT", "ROLE_PACIENT_PREMIUM")
+
                         // 📤 Upload obrázka pre OCR
                         .requestMatchers(HttpMethod.POST, "/api/ocr/upload").permitAll()
 
