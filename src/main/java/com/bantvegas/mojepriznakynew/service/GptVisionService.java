@@ -27,27 +27,33 @@ public class GptVisionService {
             base64Image = Base64.getEncoder().encodeToString(bytes);
         }
 
-        // ➕ Construct JSON
-        Map<String, Object> message = new HashMap<>();
-        List<Map<String, Object>> content = new ArrayList<>();
+        // 🧠 Slovenský systémový prompt
+        Map<String, Object> systemMessage = Map.of(
+                "role", "system",
+                "content", "Si zdravotný asistent. Odpovedaj výhradne po slovensky."
+        );
 
+        // 👤 Používateľská správa
+        List<Map<String, Object>> userContent = new ArrayList<>();
         if (prompt != null && !prompt.isBlank()) {
-            content.add(Map.of("type", "text", "text", prompt));
+            userContent.add(Map.of("type", "text", "text", prompt));
         }
-
         if (base64Image != null) {
-            content.add(Map.of(
+            userContent.add(Map.of(
                     "type", "image_url",
                     "image_url", Map.of("url", "data:image/jpeg;base64," + base64Image)
             ));
         }
 
-        message.put("role", "user");
-        message.put("content", content);
+        Map<String, Object> userMessage = Map.of(
+                "role", "user",
+                "content", userContent
+        );
 
+        // 📨 Celá požiadavka
         Map<String, Object> request = Map.of(
                 "model", "gpt-4o",
-                "messages", List.of(message),
+                "messages", List.of(systemMessage, userMessage),
                 "max_tokens", 1000
         );
 
