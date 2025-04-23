@@ -9,7 +9,6 @@ import com.bantvegas.mojepriznakynew.service.GptVisionService;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +38,10 @@ public class DiagnoseController {
         if (auth == null || !auth.isAuthenticated()) {
             return ResponseEntity.status(401).body(Map.of("result", "❌ Neautorizovaný prístup"));
         }
+
+        System.out.println("🧠 Prístup na /diagnose");
+        System.out.println("Používateľ: " + auth.getName());
+        System.out.println("Authority: " + auth.getAuthorities());
 
         String email = auth.getName();
         User user = userRepository.findByEmail(email).orElse(null);
@@ -83,19 +86,20 @@ public class DiagnoseController {
     }
 
     @PostMapping("/diagnose/send")
-    @PreAuthorize("hasAnyAuthority('ROLE_PACIENT', 'ROLE_PACIENT_PREMIUM')")
     public ResponseEntity<?> sendDiagnosisToDoctor(
             @RequestParam("id") Long diagnosisId,
             @RequestParam("email") String doctorEmail
     ) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
+            System.out.println("⛔ Neautentifikovaný prístup");
             return ResponseEntity.status(401).body("❌ Neautorizovaný prístup.");
         }
 
         System.out.println("✅ Diagnóza odosielaná doktorovi");
         System.out.println("Používateľ: " + auth.getName());
         System.out.println("Roly používateľa: " + auth.getAuthorities());
+        auth.getAuthorities().forEach(a -> System.out.println("➡️ Authority: " + a.getAuthority()));
 
         String userEmail = auth.getName();
         User user = userRepository.findByEmail(userEmail).orElse(null);
@@ -125,3 +129,4 @@ public class DiagnoseController {
         }
     }
 }
+
