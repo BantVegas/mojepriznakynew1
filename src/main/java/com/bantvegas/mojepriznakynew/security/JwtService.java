@@ -16,9 +16,10 @@ public class JwtService {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
 
+    // ✅ Generovanie tokenu so správnym ROLE_ prefixom
     public String generateToken(String email, String role) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("authorities", List.of(role));
+        claims.put("authorities", List.of("ROLE_" + role)); // Dôležité!
 
         return Jwts.builder()
                 .setClaims(claims)
