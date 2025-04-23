@@ -22,14 +22,19 @@ public class OpenAiImageRequestService {
     public String analyzeWithImage(byte[] imageData, String prompt) {
         RestTemplate restTemplate = new RestTemplate();
 
+        // 🖼️ Príprava obrázka v base64
         Map<String, Object> imageContent = Map.of(
                 "type", "image_url",
                 "image_url", Map.of("url", "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(imageData))
         );
 
+        // 🇸🇰 Kontext + prompt + obrázok
         Map<String, Object> message = Map.of(
                 "role", "user",
-                "content", List.of(prompt, imageContent)
+                "content", List.of(
+                        "Analyzuj zdravotný problém na obrázku a odpovedz po slovensky.",
+                        imageContent
+                )
         );
 
         Map<String, Object> requestBody = Map.of(
@@ -44,15 +49,20 @@ public class OpenAiImageRequestService {
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<Map> response = restTemplate.exchange(OPENAI_URL, HttpMethod.POST, entity, Map.class);
+        try {
+            ResponseEntity<Map> response = restTemplate.exchange(OPENAI_URL, HttpMethod.POST, entity, Map.class);
+            List<Map<String, Object>> choices = (List<Map<String, Object>>) response.getBody().get("choices");
 
-        List<Map<String, Object>> choices = (List<Map<String, Object>>) response.getBody().get("choices");
+            if (choices != null && !choices.isEmpty()) {
+                Map<String, Object> messageContent = (Map<String, Object>) choices.get(0).get("message");
+                return messageContent.get("content").toString();
+            }
 
-        if (choices != null && !choices.isEmpty()) {
-            Map<String, Object> messageContent = (Map<String, Object>) choices.get(0).get("message");
-            return messageContent.get("content").toString();
+            return "❌ AI nevrátila žiadnu odpoveď.";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "❌ Chyba pri volaní AI: " + e.getMessage();
         }
-
-        return "❌ AI nevrátila žiadnu odpoveď.";
     }
 }
+
