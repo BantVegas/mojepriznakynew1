@@ -76,4 +76,5 @@ public class DiagnoseController {
         List<DiagnosisRecord> history = diagnosisRecordRepository.findByUserOrderByTimestampDesc(user);
         return ResponseEntity.ok(history);
     }
+
 }
