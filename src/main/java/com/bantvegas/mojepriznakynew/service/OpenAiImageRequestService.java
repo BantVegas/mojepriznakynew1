@@ -33,7 +33,7 @@ public class OpenAiImageRequestService {
         );
 
         Map<String, Object> requestBody = Map.of(
-                "model", "gpt-4-vision-preview",
+                "model", "gpt-4o",
                 "messages", List.of(message),
                 "max_tokens", 1000
         );
