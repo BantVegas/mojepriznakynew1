@@ -9,6 +9,7 @@ import com.bantvegas.mojepriznakynew.service.GptVisionService;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -82,6 +83,7 @@ public class DiagnoseController {
     }
 
     @PostMapping("/diagnose/send")
+    @PreAuthorize("hasAnyAuthority('ROLE_PACIENT', 'ROLE_PACIENT_PREMIUM')")
     public ResponseEntity<?> sendDiagnosisToDoctor(
             @RequestParam("id") Long diagnosisId,
             @RequestParam("email") String doctorEmail
