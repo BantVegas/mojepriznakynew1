@@ -9,7 +9,6 @@ import com.bantvegas.mojepriznakynew.service.GptVisionService;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -83,7 +82,6 @@ public class DiagnoseController {
     }
 
     @PostMapping("/diagnose/send")
-    @PreAuthorize("hasAnyRole('PACIENT', 'PACIENT_PREMIUM')")
     public ResponseEntity<?> sendDiagnosisToDoctor(
             @RequestParam("id") Long diagnosisId,
             @RequestParam("email") String doctorEmail
@@ -92,6 +90,10 @@ public class DiagnoseController {
         if (auth == null || !auth.isAuthenticated()) {
             return ResponseEntity.status(401).body("❌ Neautorizovaný prístup.");
         }
+
+        System.out.println("✅ Diagnóza odosielaná doktorovi");
+        System.out.println("Používateľ: " + auth.getName());
+        System.out.println("Roly používateľa: " + auth.getAuthorities());
 
         String userEmail = auth.getName();
         User user = userRepository.findByEmail(userEmail).orElse(null);
