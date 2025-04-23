@@ -32,32 +32,39 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // 🔓 Verejne dostupné endpointy
                         .requestMatchers(
                                 "/auth/**",
                                 "/stripe/webhook",
                                 "/h2-console/**"
                         ).permitAll()
+
+                        // ⚙️ Prehliadka (OPTIONS pre CORS preflight)
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // 🧠 AI analýza
+                        // 🧠 AI voľná analýza
                         .requestMatchers(HttpMethod.POST, "/api/freeform")
                         .hasAnyAuthority("ROLE_PACIENT", "ROLE_PACIENT_PREMIUM")
 
-                        // 📷 Diagnóza z obrázka
+                        // 📷 Diagnóza text + obrázok
                         .requestMatchers(HttpMethod.POST, "/api/diagnose")
                         .hasAnyAuthority("ROLE_PACIENT", "ROLE_PACIENT_PREMIUM")
 
-                        // ✅ História diagnóz
+                        // 📚 História analýz
                         .requestMatchers(HttpMethod.GET, "/api/diagnose/history")
                         .hasAnyAuthority("ROLE_PACIENT", "ROLE_PACIENT_PREMIUM")
 
-                        // 📤 Upload obrázka pre OCR
+                        // 📩 Odosielanie analýzy doktorovi
+                        .requestMatchers(HttpMethod.POST, "/api/diagnose/send")
+                        .hasAnyAuthority("ROLE_PACIENT", "ROLE_PACIENT_PREMIUM")
+
+                        // 📤 OCR upload obrázka
                         .requestMatchers(HttpMethod.POST, "/api/ocr/upload").permitAll()
 
-                        // 💳 Stripe
+                        // 💳 Stripe Checkout
                         .requestMatchers(HttpMethod.POST, "/stripe/create-checkout-session").authenticated()
 
-                        // 🧍‍♂️ Info o používateľovi
+                        // 👤 Informácie o používateľovi
                         .requestMatchers("/api/me").authenticated()
 
                         // 🔒 Všetko ostatné zakázané
@@ -71,14 +78,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of(
-                "https://*.vercel.app",
-                "https://mojepriznaky-frontend5.vercel.app",
-                "http://localhost:*"
+        config.setAllowedOrigins(List.of(
+                "https://mojepriznaky-frontend5.vercel.app", // produkčný frontend
+                "http://localhost:3000" // vývojársky frontend
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
-        config.setAllowCredentials(true);
+        config.setAllowCredentials(true); // kvôli cookie/tokenom
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
