@@ -20,14 +20,19 @@ public class OpenAiService {
     public String askChatGPT(String prompt) {
         RestTemplate restTemplate = new RestTemplate();
 
-        Map<String, Object> message = Map.of(
+        Map<String, Object> systemMessage = Map.of(
+                "role", "system",
+                "content", "Si zdravotný asistent. Vždy odpovedaj výhradne po slovensky."
+        );
+
+        Map<String, Object> userMessage = Map.of(
                 "role", "user",
                 "content", prompt
         );
 
         Map<String, Object> requestBody = Map.of(
                 "model", "gpt-4o",
-                "messages", List.of(message),
+                "messages", List.of(systemMessage, userMessage),
                 "max_tokens", 500
         );
 

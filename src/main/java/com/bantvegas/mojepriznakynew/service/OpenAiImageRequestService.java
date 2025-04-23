@@ -6,9 +6,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -22,24 +20,27 @@ public class OpenAiImageRequestService {
     public String analyzeWithImage(byte[] imageData, String prompt) {
         RestTemplate restTemplate = new RestTemplate();
 
-        // 🖼️ Príprava obrázka v base64
-        Map<String, Object> imageContent = Map.of(
+        String base64Image = Base64.getEncoder().encodeToString(imageData);
+        Map<String, Object> imageUrl = Map.of(
                 "type", "image_url",
-                "image_url", Map.of("url", "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(imageData))
+                "image_url", Map.of("url", "data:image/jpeg;base64," + base64Image)
         );
 
-        // 🇸🇰 Kontext + prompt + obrázok
-        Map<String, Object> message = Map.of(
+        // 🇸🇰 System prompt pre slovenskú odpoveď
+        Map<String, Object> systemMessage = Map.of(
+                "role", "system",
+                "content", "Si zdravotný asistent. Analyzuj obrázok a odpovedaj výhradne po slovensky."
+        );
+
+        // 👤 Používateľský vstup = prompt + obrázok
+        Map<String, Object> userMessage = Map.of(
                 "role", "user",
-                "content", List.of(
-                        "Analyzuj zdravotný problém na obrázku a odpovedz po slovensky.",
-                        imageContent
-                )
+                "content", List.of(prompt, imageUrl)
         );
 
         Map<String, Object> requestBody = Map.of(
                 "model", "gpt-4o",
-                "messages", List.of(message),
+                "messages", List.of(systemMessage, userMessage),
                 "max_tokens", 1000
         );
 
@@ -65,4 +66,3 @@ public class OpenAiImageRequestService {
         }
     }
 }
-
