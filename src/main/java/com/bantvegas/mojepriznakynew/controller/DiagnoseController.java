@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -57,5 +58,22 @@ public class DiagnoseController {
             e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of("result", "❌ Chyba pri AI analýze"));
         }
+    }
+
+    @GetMapping("/diagnose/history")
+    public ResponseEntity<?> getHistory() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(401).body(Map.of("error", "❌ Neautorizovaný prístup"));
+        }
+
+        String email = auth.getName();
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(404).body(Map.of("error", "❌ Používateľ neexistuje"));
+        }
+
+        List<DiagnosisRecord> history = diagnosisRecordRepository.findByUserOrderByTimestampDesc(user);
+        return ResponseEntity.ok(history);
     }
 }
