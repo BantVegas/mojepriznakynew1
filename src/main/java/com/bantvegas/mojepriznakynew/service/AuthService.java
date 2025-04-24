@@ -25,8 +25,7 @@ public class AuthService {
             throw new RuntimeException("Nesprávne heslo");
         }
 
-        String role = "ROLE_" + user.getSubscriptionTier().name();
-        return jwtService.generateToken(user.getEmail(), role);
+        return jwtService.generateToken(user.getEmail(), user.getSubscriptionTier().name()); // ✅ bez ROLE_ prefixu
     }
 
     public String register(User user) {
@@ -35,7 +34,6 @@ public class AuthService {
         user.setAiUsageCount(0);
         userRepository.save(user);
 
-        String role = "ROLE_" + user.getSubscriptionTier().name();
-        return jwtService.generateToken(user.getEmail(), role);
+        return jwtService.generateToken(user.getEmail(), user.getSubscriptionTier().name()); // ✅ bez ROLE_ prefixu
     }
 }
