@@ -1,6 +1,5 @@
 package com.bantvegas.mojepriznakynew.config;
 
-import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,7 +28,7 @@ public class MailConfig {
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.starttls.required", "true");
-        props.put("mail.debug", "true"); // 🔍 zapne podrobný debug log v konzole
+        props.put("mail.debug", "true"); // zobrazí SMTP výpis v konzole
 
         return sender;
     }
