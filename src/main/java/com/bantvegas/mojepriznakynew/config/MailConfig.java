@@ -12,23 +12,24 @@ import java.util.Properties;
 public class MailConfig {
 
     @Bean
-    public JavaMailSender mailSender(@Value("${spring.mail.username}") String username,
-                                     @Value("${spring.mail.password}") String password) {
-
-        System.out.println("✅ Konfigurujem JavaMailSender pre používateľa: " + username);
+    public JavaMailSender mailSender(
+            @Value("${SENDGRID_SMTP_USERNAME}") String username,
+            @Value("${SENDGRID_SMTP_PASSWORD}") String password
+    ) {
+        System.out.println("✅ Konfigurujem JavaMailSender pre SendGrid používateľa: " + username);
 
         JavaMailSenderImpl sender = new JavaMailSenderImpl();
-        sender.setHost("smtp.gmail.com");
-        sender.setPort(587);
-        sender.setUsername(username);
-        sender.setPassword(password);
+        sender.setHost("smtp.sendgrid.net");
+        sender.setPort(587); // STARTTLS port
+        sender.setUsername(username); // musí byť "apikey"
+        sender.setPassword(password); // je to tvoj API Key
 
         Properties props = sender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.starttls.required", "true");
-        props.put("mail.debug", "true"); // zobrazí SMTP výpis v konzole
+        props.put("mail.debug", "true");
 
         return sender;
     }
