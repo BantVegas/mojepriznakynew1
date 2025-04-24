@@ -2,6 +2,7 @@ package com.bantvegas.mojepriznakynew.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -10,22 +11,22 @@ import java.util.*;
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "mojepriznaky-supertajny-kluc-256-bitovy-musi-byt-dostdlhy";
+    @Value("${jwt.secret}")
+    private String secret;
 
     private Key getSignInKey() {
-        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+        return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    // ✅ Generovanie tokenu so správnym ROLE_ prefixom
     public String generateToken(String email, String role) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("authorities", List.of("ROLE_" + role)); // Dôležité!
+        claims.put("authorities", List.of("ROLE_" + role)); // napr. ROLE_PACIENT
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24h
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 hodín
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
