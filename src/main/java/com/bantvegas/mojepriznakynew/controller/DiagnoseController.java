@@ -97,18 +97,30 @@ public class DiagnoseController {
         }
 
         System.out.println("✅ Diagnóza odosielaná doktorovi");
-        System.out.println("Používateľ: " + auth.getName());
-        System.out.println("Roly používateľa: " + auth.getAuthorities());
-        auth.getAuthorities().forEach(a -> System.out.println("➡️ Authority: " + a.getAuthority()));
+        System.out.println("➡️ Diagnóza ID z requestu: " + diagnosisId);
+        System.out.println("👤 Prihlásený používateľ (auth.getName): " + auth.getName());
 
         String userEmail = auth.getName();
         User user = userRepository.findByEmail(userEmail).orElse(null);
         if (user == null) {
+            System.out.println("❌ Používateľ nenájdený v DB");
             return ResponseEntity.status(404).body("❌ Používateľ neexistuje.");
         }
 
+        System.out.println("✅ Používateľ z DB: " + user.getEmail() + " (ID: " + user.getId() + ")");
+
         DiagnosisRecord record = diagnosisRecordRepository.findById(diagnosisId).orElse(null);
-        if (record == null || !record.getUser().getId().equals(user.getId())) {
+        if (record == null) {
+            System.out.println("❌ Diagnóza s ID " + diagnosisId + " neexistuje v databáze");
+            return ResponseEntity.status(404).body("❌ Diagnóza neexistuje.");
+        }
+
+        System.out.println("📋 Diagnóza nájdená: ID " + record.getId());
+        System.out.println("📧 Diagnóza patrí používateľovi: " + record.getUser().getEmail() + " (ID: " + record.getUser().getId() + ")");
+        System.out.println("✔️ Zhoduje sa s aktuálnym používateľom? " + record.getUser().getId().equals(user.getId()));
+
+        if (!record.getUser().getId().equals(user.getId())) {
+            System.out.println("❌ Diagnóza nepatrí aktuálnemu používateľovi");
             return ResponseEntity.status(403).body("❌ Prístup odmietnutý.");
         }
 
@@ -129,4 +141,3 @@ public class DiagnoseController {
         }
     }
 }
-
