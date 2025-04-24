@@ -6,7 +6,6 @@ import com.bantvegas.mojepriznakynew.repository.DiagnosisRecordRepository;
 import com.bantvegas.mojepriznakynew.repository.UserRepository;
 import com.bantvegas.mojepriznakynew.service.EmailService;
 import com.bantvegas.mojepriznakynew.service.GptVisionService;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -124,20 +123,15 @@ public class DiagnoseController {
             return ResponseEntity.status(403).body("❌ Prístup odmietnutý.");
         }
 
-        try {
-            String formattedDate = record.getTimestamp().format(DateTimeFormatter.ofPattern("d.M.yyyy HH:mm"));
+        String formattedDate = record.getTimestamp().format(DateTimeFormatter.ofPattern("d.M.yyyy HH:mm"));
 
-            emailService.sendDiagnosisAsPdf(
-                    doctorEmail,
-                    user,
-                    record.getResult(),
-                    formattedDate
-            );
+        emailService.sendDiagnosisAsPdf(
+                doctorEmail,
+                user,
+                record.getResult(),
+                formattedDate
+        );
 
-            return ResponseEntity.ok("✅ E-mail bol úspešne odoslaný doktorovi.");
-        } catch (MessagingException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("❌ Nepodarilo sa odoslať e-mail.");
-        }
+        return ResponseEntity.ok("✅ E-mail bol úspešne odoslaný doktorovi.");
     }
 }
