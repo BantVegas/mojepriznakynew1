@@ -28,7 +28,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
 
+        System.out.println("🛡️ JWT Filter aktivovaný pre cestu: " + request.getRequestURI());
+        System.out.println("➡️ Authorization hlavička: " + authHeader);
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("⛔ Žiadny alebo zlý Bearer token — púšťam ďalej");
             filterChain.doFilter(request, response);
             return;
         }
@@ -37,6 +41,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             final String token = authHeader.substring(7);
             final String email = jwtService.extractUsername(token);
             final List<String> roles = jwtService.extractAuthorities(token);
+
+            System.out.println("📧 Používateľ z tokenu: " + email);
+            System.out.println("🔑 Autority z tokenu: " + roles);
 
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 var authorities = roles.stream()
@@ -47,12 +54,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                System.out.println("✅ SecurityContextHolder nastavený pre: " + email);
+            } else {
+                System.out.println("⚠️ Už existuje autentifikácia, preskakujem");
             }
         } catch (Exception e) {
+            System.out.println("❌ Výnimka pri spracovaní tokenu:");
             e.printStackTrace();
         }
 
         filterChain.doFilter(request, response);
     }
 }
-
