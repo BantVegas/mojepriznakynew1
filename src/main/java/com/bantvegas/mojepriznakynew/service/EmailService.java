@@ -18,14 +18,22 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    public void sendDiagnosisAsPdf(String toEmail, User user, String diagnosisText, String timestampFormatted) throws MessagingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+    public void sendDiagnosisAsPdf(String toEmail, User user, String diagnosisText, String timestampFormatted) {
+        try {
+            System.out.println("📧 Príprava e-mailu...");
+            System.out.println("➡️ Komu: " + toEmail);
+            System.out.println("➡️ Od: " + user.getEmail());
+            System.out.println("➡️ Meno: " + user.getFirstName() + " " + user.getLastName());
+            System.out.println("➡️ Čas: " + timestampFormatted);
+            System.out.println("📝 Text AI výstupu:\n" + diagnosisText);
 
-        helper.setTo(toEmail);
-        helper.setSubject("🧠 Diagnóza pacienta z MojePriznaky.sk");
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
 
-        String body = String.format("""
+            helper.setTo(toEmail);
+            helper.setSubject("🧠 Diagnóza pacienta z MojePriznaky.sk");
+
+            String body = String.format("""
                 Dobrý deň,
 
                 zasielame AI analýzu pacienta:
@@ -39,13 +47,20 @@ public class EmailService {
                 Tím MojePriznaky.sk
                 """, user.getFirstName(), user.getLastName(), user.getEmail(), timestampFormatted);
 
-        helper.setText(body, false);
+            helper.setText(body, false);
 
-        // PDF ako byte array (môžeš nahradiť za lepšie generovanie)
-        byte[] pdfContent = generateSimplePdf(diagnosisText);
-        helper.addAttachment("vysledok.pdf", new ByteArrayResource(pdfContent));
+            byte[] pdfContent = generateSimplePdf(diagnosisText);
+            helper.addAttachment("vysledok.pdf", new ByteArrayResource(pdfContent));
 
-        mailSender.send(message);
+            mailSender.send(message);
+            System.out.println("✅ E-mail bol úspešne odoslaný.");
+        } catch (MessagingException e) {
+            System.out.println("❌ Chyba pri odosielaní e-mailu:");
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("❌ Všeobecná chyba:");
+            e.printStackTrace();
+        }
     }
 
     private byte[] generateSimplePdf(String content) {
@@ -59,8 +74,7 @@ public class EmailService {
                 endobj
                 3 0 obj
                 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792]
-                   /Contents 4 0 R /Resources << >>
-                >>
+                   /Contents 4 0 R /Resources << >> >>
                 endobj
                 4 0 obj
                 << /Length 55 >>
