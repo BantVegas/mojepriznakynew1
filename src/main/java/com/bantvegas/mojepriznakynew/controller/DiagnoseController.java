@@ -41,6 +41,8 @@ public class DiagnoseController {
         System.out.println("🧠 Prístup na /diagnose");
         System.out.println("Používateľ: " + auth.getName());
         System.out.println("Authority: " + auth.getAuthorities());
+        System.out.println("📨 Prompt: " + prompt);
+        System.out.println("📎 Súbor: " + (file != null ? file.getOriginalFilename() : "null"));
 
         String email = auth.getName();
         User user = userRepository.findByEmail(email).orElse(null);
@@ -62,8 +64,11 @@ public class DiagnoseController {
 
             return ResponseEntity.ok(Map.of("result", result));
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body(Map.of("result", "❌ Chyba pri AI analýze"));
+            e.printStackTrace(); // výpis na server
+            return ResponseEntity.status(500).body(
+                    Map.of("result", "❌ Chyba pri AI analýze: " +
+                            e.getClass().getSimpleName() + " – " + e.getMessage())
+            );
         }
     }
 
