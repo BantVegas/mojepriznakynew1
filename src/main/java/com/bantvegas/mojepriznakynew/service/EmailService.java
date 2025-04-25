@@ -9,7 +9,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
-import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +26,7 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, false, StandardCharsets.UTF_8.name());
 
             helper.setTo(toEmail);
+            helper.setFrom("noreply@mojepriznaky.sk"); // musí byť overený e-mail v SendGrid
             helper.setSubject("🧠 Diagnóza pacienta z MojePriznaky.sk");
 
             String body = String.format("""
@@ -46,7 +46,7 @@ public class EmailService {
                 Tím MojePriznaky.sk
                 """, user.getFirstName(), user.getLastName(), user.getEmail(), timestampFormatted, diagnosisText);
 
-            helper.setText(body, false);
+            helper.setText(body, false); // false = čistý text
             mailSender.send(message);
 
             System.out.println("✅ E-mail bol úspešne odoslaný.");
