@@ -26,7 +26,7 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, false, StandardCharsets.UTF_8.name());
 
             helper.setTo(toEmail);
-            helper.setFrom("noreply@mojepriznaky.sk"); // musí byť overený e-mail v SendGrid
+            helper.setFrom("tvojgmail@gmail.com"); // ← nastav sem presne ten Gmail, ktorý si dal v spring.mail.username
             helper.setSubject("🧠 Diagnóza pacienta z MojePriznaky.sk");
 
             String body = String.format("""
@@ -46,7 +46,7 @@ public class EmailService {
                 Tím MojePriznaky.sk
                 """, user.getFirstName(), user.getLastName(), user.getEmail(), timestampFormatted, diagnosisText);
 
-            helper.setText(body, false); // false = čistý text
+            helper.setText(body, false); // false = plain text
             mailSender.send(message);
 
             System.out.println("✅ E-mail bol úspešne odoslaný.");

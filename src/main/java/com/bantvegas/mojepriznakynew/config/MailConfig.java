@@ -11,18 +11,19 @@ import java.util.Properties;
 @Configuration
 public class MailConfig {
 
-    @Bean
-    public JavaMailSender mailSender(
-            @Value("${SENDGRID_SMTP_USERNAME}") String username,
-            @Value("${SENDGRID_SMTP_PASSWORD}") String password
-    ) {
-        System.out.println("✅ Konfigurujem JavaMailSender pre SendGrid používateľa: " + username);
+    @Value("${spring.mail.username}")
+    private String username;
 
+    @Value("${spring.mail.password}")
+    private String password;
+
+    @Bean
+    public JavaMailSender mailSender() {
         JavaMailSenderImpl sender = new JavaMailSenderImpl();
-        sender.setHost("smtp.sendgrid.net");
-        sender.setPort(587); // STARTTLS port
-        sender.setUsername(username); // musí byť "apikey"
-        sender.setPassword(password); // je to tvoj API Key
+        sender.setHost("smtp.gmail.com");
+        sender.setPort(587);
+        sender.setUsername(username);
+        sender.setPassword(password);
 
         Properties props = sender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
