@@ -26,7 +26,7 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, false, StandardCharsets.UTF_8.name());
 
             helper.setTo(toEmail);
-            helper.setFrom("tvojgmail@gmail.com"); // ← nastav sem presne ten Gmail, ktorý si dal v spring.mail.username
+            helper.setFrom("mojepriznaky@gmail.com"); // ← nastav sem presne ten Gmail, ktorý si dal v spring.mail.username
             helper.setSubject("🧠 Diagnóza pacienta z MojePriznaky.sk");
 
             String body = String.format("""
